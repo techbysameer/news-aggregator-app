@@ -16,6 +16,8 @@ Following are the setps to setup the project
 `4.` Run `composer install` <br>
 `5.` Run `alias sail='[ -f sail ] && sh sail || sh vendor/bin/sail'` <br>
 `6.` Run `sail artisan migrate` <br>
-`7.` Run `sail up -d` <br>
+`7.` Run `sail artisan db:seed --class=SourcesTableSeeder` <br>
+
+`8.` Run `sail up -d` <br>
 
 
