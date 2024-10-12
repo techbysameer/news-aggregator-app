@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Models\Source;
 use App\Models\Article;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class FetchNews extends Command
@@ -86,23 +87,39 @@ class FetchNews extends Command
     private function saveArticle($article, $sourceId)
     {
         $title = $this->extractTitle($article);
+        $description = $this->extractDescription($article);
+        $author = $this->extractAuthor($article);
         $data = [
-            'description' => $this->extractDescription($article),
-            'author' => $this->extractAuthor($article),
+            'description' => $description,
+            'author' => $author,
             'content' => json_encode($article),
             'url' => $this->extractUrl($article),
             'published_at' => $this->extractPublishedAt($article),
-            'category' => $this->extractCategory($article),
+            'category' => $this->extractCategory($article)
         ];
-
+        
         // Save or update the article
-        Article::updateOrCreate(
+        $articleModel = Article::updateOrCreate(
             ['source_id' => $sourceId, 'title' => $title],
             $data
         );
+        $this->fillSearchVector($articleModel, $title, $description, $author);
     }
 
     // Article attribute extractors, based on source-specific fields
+    private function fillSearchVector($articleModel, $title, $description, $author)
+    {
+        DB::table('articles')
+            ->where('id', $articleModel->id)
+            ->update([
+                'search_vector' => DB::raw("
+                    setweight(to_tsvector('english', coalesce('" . addslashes($title) . "', '')), 'A') || 
+                    setweight(to_tsvector('english', coalesce('" . addslashes($description) . "', '')), 'B') || 
+                    setweight(to_tsvector('english', coalesce('" . addslashes($author) . "', '')), 'C')
+                ")
+            ]);
+    }
+    
     private function extractTitle($article)
     {
         return $article['title'] ?? $article['webTitle'] ?? 'Untitled';

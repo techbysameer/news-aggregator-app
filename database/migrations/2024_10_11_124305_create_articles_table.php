@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('description')->nullable(); 
             $table->string('author')->nullable(); 
             $table->jsonb('content'); 
-            $table->string('url'); 
+            $table->text('url'); 
             $table->timestamp('published_at'); 
             $table->string('category')->nullable();
             $table->timestamps(); 
