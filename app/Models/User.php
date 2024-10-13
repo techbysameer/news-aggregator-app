@@ -53,4 +53,9 @@ class User extends Authenticatable
         $url = env('RESET_PASSWORD_URL') . '/reset-password?token=' . $token;
         $this->notify(new ResetPasswordCustom($url));
     }
+    // relationship to user preferences
+    public function preferences()
+    {
+        return $this->hasOne(UserPreference::class);
+    }
 }

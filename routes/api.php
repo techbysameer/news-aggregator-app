@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ArticleController;
+use App\Http\Controllers\API\UserPreferenceController;
 
 // Public routes
 Route::group([], function () { // Add an empty array here
@@ -18,4 +19,11 @@ Route::middleware('auth:sanctum')->group(function () {
     //Article Routes
     Route::get('/articles', [ArticleController::class, 'index']);
     Route::get('/articles/{id}', [ArticleController::class, 'show']);
+
+    //User Preferences
+    Route::prefix('user')->group(function () {
+        Route::post('preferences', [UserPreferenceController::class, 'setPreferences']);
+        Route::get('preferences', [UserPreferenceController::class, 'getPreferences']);
+        Route::get('personalized-feed', [UserPreferenceController::class, 'getPersonalizedFeed']);
+    });
 });

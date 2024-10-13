@@ -25,7 +25,7 @@ class ArticleRepository
         }
 
         if (!empty($filters['source'])) {
-            $query->whereHas('source', function($q) use ($filters) {
+            $query->whereHas('source', function ($q) use ($filters) {
                 $q->where('name', $filters['source']);
             });
         }
@@ -37,5 +37,24 @@ class ArticleRepository
     public function getArticleById($id)
     {
         return Article::with('source')->findOrFail($id);
+    }
+
+    public function getArticlesBasedOnPreferences($preferences)
+    {
+        $query = Article::query();
+
+        if (!empty($preferences->sources)) {
+            $query->whereIn('source_id', $preferences->sources);
+        }
+
+        if (!empty($preferences->categories)) {
+            $query->orWhereIn('category', $preferences->categories);
+        }
+
+        if (!empty($preferences->authors)) {
+            $query->orWhereIn('author', $preferences->authors);
+        }
+
+        return $query->paginate(10);
     }
 }
